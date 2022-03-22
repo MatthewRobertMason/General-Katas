@@ -2,6 +2,7 @@
 {
     using GraphQLInventorySystem.Data;
     using GraphQLInventorySystem.Data.Entities;
+    using Microsoft.EntityFrameworkCore;
 
     public class InventoryRepository
     {
@@ -15,6 +16,17 @@
         public IEnumerable<Inventory> GetAll()
         {
             return _dbContext.Inventories;
+        }
+
+        public IEnumerable<Inventory> GetUserInventory(int userId)
+        {
+            return _dbContext.Inventories.Where(p => p.UserId == userId);
+        }
+
+        public async Task<ILookup<int, Inventory>> GetForInventories(IEnumerable<int> userIds)
+        {
+            List<Inventory> inventories = await _dbContext.Inventories.Where(p => userIds.Contains(p.Id)).ToListAsync();
+            return inventories.ToLookup(p => p.UserId);
         }
 
         public async Task<Inventory> AddInventory(Inventory inventory)

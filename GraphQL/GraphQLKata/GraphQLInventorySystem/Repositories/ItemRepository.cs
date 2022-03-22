@@ -2,6 +2,7 @@
 {
     using GraphQLInventorySystem.Data;
     using GraphQLInventorySystem.Data.Entities;
+    using Microsoft.EntityFrameworkCore;
 
     public class ItemRepository
     {
@@ -15,6 +16,17 @@
         public IEnumerable<Item> GetAll()
         {
             return _dbContext.Items;
+        }
+
+        public Item GetItem(int itemId)
+        {
+            return _dbContext.Items.FirstOrDefault(p => p.Id == itemId);
+        }
+
+        public async Task<IDictionary<int, Item>> GetForItems(IEnumerable<int> itemIds)
+        {
+            List<Item> items = await _dbContext.Items.Where(p => itemIds.Contains(p.Id)).ToListAsync();
+            return items.ToDictionary(p => p.Id);
         }
 
         public async Task<Item> AddItem(Item item)
